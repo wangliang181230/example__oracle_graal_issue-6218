@@ -2,14 +2,138 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.0.2</version>
+		<relativePath/>
+	</parent>
 
 	<groupId>cn.wangliang181230</groupId>
 	<artifactId>example-oracle-graal-issue-6218</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
 	<properties>
-		<java.version>17</java.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<native-build-tools-plugin.version>0.9.20</native-build-tools-plugin.version>
+
+		<spring-cloud.version>2022.0.1</spring-cloud.version>
+
+		<seata.version>1.7.0-native-rc2</seata.version>
+		<nacos.version>1.4.4</nacos.version>
+		<eureka.version>1.10.18</eureka.version>
+		<druid.version>1.2.15</druid.version>
 	</properties>
+
+	<dependencies>
+		<!-- web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- logging -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</dependency>
+
+		<!-- jdbc && mysql -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+		</dependency>
+
+		<!-- seata -->
+		<dependency>
+			<groupId>io.seata</groupId>
+			<artifactId>seata-spring-boot-starter</artifactId>
+			<version>${seata.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.seata</groupId>
+					<artifactId>seata-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>druid</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>${druid.version}</version>
+		</dependency>
+
+		<!-- nacos -->
+		<dependency>
+			<groupId>com.alibaba.nacos</groupId>
+			<artifactId>nacos-client</artifactId>
+			<version>${nacos.version}</version>
+		</dependency>
+
+		<!-- eureka -->
+		<dependency>
+			<groupId>com.netflix.eureka</groupId>
+			<artifactId>eureka-client</artifactId>
+			<version>${eureka.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.graalvm.buildtools</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<configuration>
+						<buildArgs>
+							--exclude-config
+							\QC:\Users\new\.m2\repository\io\grpc\grpc-netty-shaded\1.50.2\grpc-netty-shaded-1.50.2.jar\E
+							^/META-INF/native-image/io.grpc.netty.shaded.io.netty/codec-http
+							--exclude-config
+							\QC:\Users\new\.m2\repository\io\grpc\grpc-netty-shaded\1.50.2\grpc-netty-shaded-1.50.2.jar\E
+							^/META-INF/native-image/io.grpc.netty.shaded.io.netty/codec-http2
+
+							--trace-object-instantiation=ch.qos.logback.classic.Logger
+
+							-H:+ReportExceptionStackTraces
+							-H:+PrintAnalysisCallTree
+							-H:+ExhaustiveHeapScan
+
+							<!-- Will throw NPE, the issue: https://github.com/oracle/graal/issues/6218 -->
+							<!-- -H:+PrintImageObjectTree -->
+						</buildArgs>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>
