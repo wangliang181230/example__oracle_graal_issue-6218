@@ -130,7 +130,7 @@
 							-H:+ExhaustiveHeapScan
 
 							<!--
-								When adding this parameter, will be thrown NPE.
+								When adding this argument, will be thrown NPE.
 								The issue: https://github.com/oracle/graal/issues/6218
 							-->
 							-H:+PrintImageObjectTree
